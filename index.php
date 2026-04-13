@@ -40,6 +40,20 @@
                   <span class="card-sub">ANOTAÇÕES →</span>
                 </div>
               </div>
+              <div class="nav-card" id="btnFinanca">
+                <span class="big-icon">📒</span>
+                <div>
+                  <div>Finanças</div>
+                  <span class="card-sub">FINANÇAS →</span>
+                </div>
+              </div>
+              <div class="nav-card" id="btnMetas">
+                <span class="big-icon">📒</span>
+                <div>
+                  <div>Metas</div>
+                  <span class="card-sub">METAS →</span>
+                </div>
+              </div>
               <div class="nav-card" id="btnProjetos">
                 <span class="big-icon">🗂️</span>
                 <div>
@@ -101,6 +115,13 @@
 
     <!-- ====== PROJETOS ====== -->
     <?php require_once 'pages/projetos.php'; ?>
+
+    <!-- ====== METAS ====== -->
+    <?php require_once 'pages/metas.php'; ?>
+
+    <!-- ====== FINANÇAS ====== -->
+    <?php require_once 'pages/financas.php'; ?>
+
 
   </div><!-- /page -->
 

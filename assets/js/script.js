@@ -40,6 +40,8 @@ function showView(name) {
 
 document.getElementById('btnCaderno') .addEventListener('click', () => showView('caderno'));
 document.getElementById('btnProjetos').addEventListener('click', () => showView('projetos'));
+document.getElementById('btnMetas').addEventListener('click', () => showView('metas'));
+document.getElementById('btnFinancas').addEventListener('click', () => showView('financas'));
 document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => showView('home')));
 
 // ===== CADERNO =====

@@ -1,0 +1,82 @@
+<!-- pages/projetos.php -->
+<div class="view" id="view-projetos">
+  <button class="back-btn" data-back>← Voltar</button>
+
+  <div class="section">
+    <h2 class="section-title">🗂️ &nbsp;Novo Projeto</h2>
+    <div class="project-form">
+      <p class="project-form-title">Preencha as informações do projeto</p>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Nome do Projeto</label>
+          <input type="text" id="projNome" placeholder="Ex: Dashboard Pessoal">
+        </div>
+        <div class="field-group">
+          <label>Status</label>
+          <select id="projStatus">
+            <option value="ativo">🟢 Ativo</option>
+            <option value="pausado">🟡 Pausado</option>
+            <option value="concluido">🔴 Concluído</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Descrição</label>
+        <textarea id="projDesc" placeholder="O que é esse projeto? Qual o objetivo?"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Tecnologias / Tags (separadas por vírgula)</label>
+          <input type="text" id="projTags" placeholder="Ex: PHP, JS, CSS">
+        </div>
+        <div class="field-group">
+          <label>Link (GitHub, deploy, etc.)</label>
+          <input type="text" id="projLink" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Imagem do Projeto</label>
+        <input type="file" id="projImg" accept="image/*">
+        <img id="imgPreview" src="" alt="Preview da imagem">
+      </div>
+
+      <button class="add-project-btn" id="btnAddProject">+ Adicionar Projeto</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">📂 &nbsp;Meus Projetos</h2>
+    <div class="projects-grid" id="projectsGrid">
+      <!-- Futuramente: projetos virão do banco via api/projetos.php -->
+      <div class="project-card">
+        <div class="card-img-placeholder">💻</div>
+        <div class="card-body">
+          <div class="card-name">Dashboard Pessoal</div>
+          <div class="card-desc">Interface de organização pessoal com caderno, projetos e metas. Backend em PHP.</div>
+          <div class="card-tags">
+            <span class="tag status-ativo">Ativo</span>
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">PHP</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="card-img-placeholder">🛒</div>
+        <div class="card-body">
+          <div class="card-name">Sistema E-commerce</div>
+          <div class="card-desc">Loja virtual com carrinho, autenticação e painel admin.</div>
+          <div class="card-tags">
+            <span class="tag status-pausado">Pausado</span>
+            <span class="tag">PHP</span>
+            <span class="tag">MySQL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

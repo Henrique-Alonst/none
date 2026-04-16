@@ -95,17 +95,6 @@
               <button id="btnAddGoal" title="Adicionar">＋</button>
             </div>
           </div>
-
-          <div class="widget-placeholder">
-            <div class="wp-icon">🧩</div>
-            <p>Widget futuro<br>(ex: humor do dia)</p>
-          </div>
-
-          <div class="widget-placeholder" style="margin-top:12px;">
-            <div class="wp-icon">📅</div>
-            <p>Calendário /<br>Lembretes</p>
-          </div>
-
         </div>
 
       </div>

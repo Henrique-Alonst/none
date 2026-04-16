@@ -36,4 +36,17 @@
       <button class="add-project-btn" id="btnAddProjectObj">+ Adicionar Projeto</button>
     </div>
   </div>
+
+    <div class="section">
+       <h2 class="section-title">📂 &nbsp;Meus Objetivos</h2>
+        <div class="projects-grid" id="projectsGridObj">
+          <!--  Objetivos que vou realizar ficarão aqui --> 
+        </div>
+    </div>
+
 </div>
+
+ 
+
+
+

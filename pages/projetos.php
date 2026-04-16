@@ -50,33 +50,9 @@
 
   <div class="section">
     <h2 class="section-title">📂 &nbsp;Meus Projetos</h2>
-    <div class="projects-grid" id="projectsGrid">
-      <!-- Futuramente: projetos virão do banco via api/projetos.php -->
-      <div class="project-card">
-        <div class="card-img-placeholder">💻</div>
-        <div class="card-body">
-          <div class="card-name">Dashboard Pessoal</div>
-          <div class="card-desc">Interface de organização pessoal com caderno, projetos e metas. Backend em PHP.</div>
-          <div class="card-tags">
-            <span class="tag status-ativo">Ativo</span>
-            <span class="tag">HTML</span>
-            <span class="tag">CSS</span>
-            <span class="tag">PHP</span>
-          </div>
-        </div>
-      </div>
-      <div class="project-card">
-        <div class="card-img-placeholder">🛒</div>
-        <div class="card-body">
-          <div class="card-name">Sistema E-commerce</div>
-          <div class="card-desc">Loja virtual com carrinho, autenticação e painel admin.</div>
-          <div class="card-tags">
-            <span class="tag status-pausado">Pausado</span>
-            <span class="tag">PHP</span>
-            <span class="tag">MySQL</span>
-          </div>
-        </div>
-      </div>
-    </div>
+     <div class="projects-grid" id="projectsGridObj">
+      <!-- Projetos criados ficarão aqui --> 
+     </div>
   </div>
+
 </div>

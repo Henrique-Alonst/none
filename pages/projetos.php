@@ -50,7 +50,7 @@
 
   <div class="section">
     <h2 class="section-title">📂 &nbsp;Meus Projetos</h2>
-     <div class="projects-grid" id="projectsGridObj">
+     <div class="projects-grid" id="projectsGrid">
       <!-- Projetos criados ficarão aqui --> 
      </div>
   </div>

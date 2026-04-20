@@ -40,6 +40,13 @@ function showView(name) {
   Object.values(views).forEach(v => v.classList.remove('active'));
   views[name].classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  localStorage.setItem('viewAtual', name); // salva a view
+}
+
+// Restaura a última view ao recarregar
+const viewSalva = localStorage.getItem('viewAtual');
+if (viewSalva && views[viewSalva]) {
+  showView(viewSalva);
 }
 
 document.getElementById('btnCaderno') .addEventListener('click', () => showView('caderno'));

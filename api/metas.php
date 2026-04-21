@@ -8,7 +8,7 @@ switch ($method) {
 
     case 'GET':
         
-        $stmt = $pdo->query("SELECT * FROM metas ");
+        $stmt = $pdo->query("SELECT * FROM metas ORDER BY id ASC ");
         echo json_encode($stmt->fetchall());
         break;
 
@@ -39,11 +39,9 @@ switch ($method) {
             break;
         }
 
-        // Exemplo futuro:
-        // $stmt = $pdo->prepare("UPDATE metas SET concluida = ? WHERE id = ?");
-        // $stmt->execute([(int)$concluida, $id]);
-
-        echo json_encode(['mensagem' => "Meta $id atualizada (simulado)"]);
+        $stmt = $pdo->prepare("UPDATE metas SET concluida = ? WHERE id = ?");
+        $stmt->execute([(int)$concluida, $id]);
+        echo json_encode(['mensagem' => "Meta $id atualizada "]);
         break;
 
     case 'DELETE':
@@ -54,10 +52,9 @@ switch ($method) {
             echo json_encode(['erro' => 'ID inválido.']);
             break;
         }
-
-    
-
-        echo json_encode(['mensagem' => "Meta $id removida (simulado)"]);
+        $stmt = $pdo->prepare("DELETE FROM metas WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['mensagem' => "Meta $id removida "]);
         break;
 
     default:

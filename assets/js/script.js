@@ -58,103 +58,170 @@ document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('cl
 document.querySelectorAll('[data-back-financas]').forEach(btn => btn.addEventListener('click', () => showView('financas')));
 
 // ===== METAS =====
-function toggleGoal(checkbox) {
-  checkbox.nextElementSibling.classList.toggle('done', checkbox.checked);
-}
-
-// Inicializa checkboxes já marcados
-document.querySelectorAll('.goal-item input[type="checkbox"]').forEach(cb => {
-  if (cb.checked) cb.nextElementSibling.classList.add('done');
-});
-
 const newGoalInput = document.getElementById('newGoalInput');
 const goalsList    = document.getElementById('goalsList');
 
-function addGoal() {
-  const texto = newGoalInput.value.trim();
-  if (!texto) return;
+// Função para criar o elemento na tela (UI)
+function renderMeta(id, texto, concluida) {
+    const label = document.createElement('label');
+    label.classList.add('goal-item');
+    label.innerHTML = `
+        <input type="checkbox" ${concluida ? 'checked' : ''}>
+        <span class="${concluida ? 'done' : ''}">${texto}</span>
+    `;
 
-  const label = document.createElement('label');
-  label.classList.add('goal-item');
-  label.innerHTML = `<input type="checkbox" onchange="toggleGoal(this)"><span>${texto}</span>`;
+    const checkbox = label.querySelector('input');
+    const span = label.querySelector('span');
 
-  // Botão apagar
-  const btnDel = document.createElement('button');
-  btnDel.textContent = '✕';
-  btnDel.style.cssText = `
-    background:none; border:none; cursor:pointer;
-    color:var(--ink-light); font-size:12px;
-    opacity:0.5; margin-left:auto; flex-shrink:0;
-    transition: opacity 0.15s;
-  `;
-  btnDel.addEventListener('click', (e) => {
-    e.preventDefault();
-    label.remove();
-  });
+    // Evento de marcar/desmarcar
+    checkbox.addEventListener('change', () => {
+        span.classList.toggle('done', checkbox.checked);
+        fetch(`api/metas.php?id=${id}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ concluida: checkbox.checked ? 1 : 0 })
+        });
+    });
 
-  label.appendChild(btnDel);
-  goalsList.appendChild(label);
-  newGoalInput.value = '';
+    // Botão apagar
+    const btnDel = document.createElement('button');
+    btnDel.textContent = '✕';
+    btnDel.style.cssText = `background:none; border:none; cursor:pointer; color:var(--ink-light); font-size:12px; opacity:0.5; margin-left:auto;`;
+    
+    btnDel.addEventListener('click', (e) => {
+        e.preventDefault();
+        fetch(`api/metas.php?id=${id}`, { method: 'DELETE' })
+            .then(() => label.remove());
+    });
+
+    label.appendChild(btnDel);
+    goalsList.appendChild(label);
 }
 
+// Função para adicionar nova meta (POST)
+function addGoal() {
+    const texto = newGoalInput.value.trim();
+    if (!texto) return;
+
+    fetch('api/metas.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ texto })
+    })
+    .then(r => r.json())
+    .then(data => {
+        renderMeta(data.id, data.texto, data.concluida);
+        newGoalInput.value = '';
+    });
+}
+
+// Função para carregar metas do banco (GET)
+function carregarMetas() {
+    fetch('api/metas.php')
+        .then(r => r.json())
+        .then(metas => {
+            goalsList.innerHTML = '';
+            metas.forEach(m => renderMeta(m.id, m.texto, m.concluida));
+        });
+}
+
+// Listeners
 document.getElementById('btnAddGoal').addEventListener('click', addGoal);
 newGoalInput.addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
 
+// Carrega ao iniciar
+carregarMetas();
 
-// ===== POST-IT DRAG, EDIT E MULTI =====
-function initPostit(el) {
-  // Drag
+
+// ------ POSTITS -------- //
+function initPostit(el, id) {
   let dx, dy, dragging = false;
+
   el.addEventListener('mousedown', e => {
-    if (e.target.tagName === 'BUTTON') return;
+    if (e.target.tagName === 'BUTTON' || e.target.getAttribute('contenteditable') === 'true') return;
     dragging = true;
     dx = e.clientX - el.getBoundingClientRect().left;
     dy = e.clientY - el.getBoundingClientRect().top;
     el.style.transition = 'none';
   });
+
   document.addEventListener('mousemove', e => {
     if (!dragging) return;
-    el.style.left   = (e.clientX - dx) + 'px';
-    el.style.top    = (e.clientY - dy) + 'px';
-    el.style.bottom = 'auto';
+    el.style.left = (e.clientX - dx) + 'px';
+    el.style.top = (e.clientY - dy) + 'px';
   });
-  document.addEventListener('mouseup', () => { dragging = false; });
 
-  // Editar ao clicar no texto
+  document.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      // SALVAR POSIÇÃO AO SOLTAR
+      fetch(`api/postits.php?id=${id}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ x: parseFloat(el.style.left), y: parseFloat(el.style.top) })
+      });
+    }
+  });
+
+  // SALVAR TEXTO AO SAIR (blur)
   const texto = el.querySelector('.postit-text');
-  texto.setAttribute('contenteditable', 'true');
-  texto.style.outline = 'none';
-  texto.style.cursor  = 'text';
+  texto.addEventListener('blur', () => {
+    fetch(`api/postits.php?id=${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ texto: texto.innerText })
+    });
+  });
 }
 
-// Inicializa o post-it original
-initPostit(document.querySelector('.floating-postit'));
-
-// Duplo clique no fundo cria novo post-it
+// CRIAR NOVO (POST)
 document.addEventListener('dblclick', e => {
   if (e.target.closest('.floating-postit') || e.target.closest('.page')) return;
 
   const cores = ['#e8c84a', '#f4a261', '#a8d8a8', '#a8d8ea', '#f4c4c4'];
-  const cor   = cores[Math.floor(Math.random() * cores.length)];
+  const cor = cores[Math.floor(Math.random() * cores.length)];
+  const x = e.clientX;
+  const y = e.clientY;
 
-  const novo = document.createElement('div');
-  novo.classList.add('floating-postit');
-  novo.style.left   = e.clientX + 'px';
-  novo.style.top    = e.clientY + 'px';
-  novo.style.bottom = 'auto';
-  novo.style.background = cor;
-  novo.innerHTML = `
-    <div class="postit-label">lembrete</div>
-    <div class="postit-text" contenteditable="true" style="outline:none;cursor:text;"></div>
-    <button onclick="this.closest('.floating-postit').remove()" style="position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;">✕</button>
-  `;
-  document.body.appendChild(novo);
-  initPostit(novo);
-
-  // Foca direto no texto
-  setTimeout(() => novo.querySelector('.postit-text').focus(), 50);
+  fetch('api/postits.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ x, y, cor })
+  })
+  .then(r => r.json())
+  .then(data => {
+    renderPostit(data.id, '', x, y, cor);
+  });
 });
 
+function renderPostit(id, texto, x, y, cor) {
+  const novo = document.createElement('div');
+  novo.classList.add('floating-postit');
+  novo.style.cssText = `left:${x}px; top:${y}px; background:${cor}; position:fixed;`;
+  novo.innerHTML = `
+    <div class="postit-label">lembrete</div>
+    <div class="postit-text" contenteditable="true" style="outline:none;cursor:text;">${texto}</div>
+    <button class="btn-del-postit" style="position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;">✕</button>
+  `;
+  
+  novo.querySelector('.btn-del-postit').onclick = () => {
+    fetch(`api/postits.php?id=${id}`, { method: 'DELETE' }).then(() => novo.remove());
+  };
+
+  document.body.appendChild(novo);
+  initPostit(novo, id);
+}
+
+// CARREGAR TUDO (GET)
+function carregarPostits() {
+  fetch('api/postits.php')
+    .then(r => r.json())
+    .then(data => {
+      data.forEach(p => renderPostit(p.id, p.texto, p.pos_x, p.pos_y, p.cor));
+    });
+}
+
+carregarPostits();
 
 
 

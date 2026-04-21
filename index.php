@@ -108,11 +108,7 @@
     <div class="clock-date" id="clockDateSmall"></div>
   </div>
 
-  <!-- POST-IT FLUTUANTE -->
-  <div class="floating-postit">
-    <div class="postit-label">lembrete</div>
-    <div class="postit-text">Não esqueça de commitar o projeto hoje! 📌</div>
-  </div>
+ 
   
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/script.js"></script>

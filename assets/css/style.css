@@ -33,7 +33,10 @@ body {
   align-items: center;
   padding: 40px 20px 60px;
   color: var(--ink);
+  cursor: default;
 }
+
+
 
 /* ===== FOLHA ===== */
 .page {
@@ -613,8 +616,6 @@ h1 {
 /* ===== POST-IT FLUTUANTE ===== */
 .floating-postit {
   position: fixed;
-  bottom: 36px;
-  left: 28px;
   width: 148px;
   background: #e8c84a;
   background-image:
@@ -625,7 +626,7 @@ h1 {
   box-shadow: 2px 3px 8px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.35) inset;
   z-index: 10;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: default;
+  cursor: move;
 }
 
 .floating-postit::before {
@@ -662,6 +663,7 @@ h1 {
   color: #3a2800;
   line-height: 1.5;
   word-break: break-word;
+  cursor: text;
 }
 
 /* ===== RESPONSIVO ===== */

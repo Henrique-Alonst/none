@@ -14,7 +14,7 @@ function carregarobjetivos() {
           p.status,
           null,
           null,
-          null,
+          p.imagem ? `uploads/${p.imagem}` : null,
           '🗂️',
           p.id,
           'api/objetivos.php'
@@ -30,14 +30,22 @@ document.getElementById('btnAddObjetivo').addEventListener('click', () => {
   const nome   = document.getElementById('projNomeObj').value.trim();
   const desc   = document.getElementById('projDesc').value.trim();
   const status = document.getElementById('projStatus').value;
-  const imgSrc = getImgObjetivo();
+  const arquivoImg = document.getElementById('projImgObj').files[0];
 
   if (!nome) { alert('Informe pelo menos o nome do projeto.'); return; }
 
+  const formData = new FormData();
+  formData.append('nome', nome);
+  formData.append('desc', desc);
+  formData.append('status', status);
+
+  if(arquivoImg){
+    formData.append('imagem_arquivo', arquivoImg);
+  }
+
   fetch('api/objetivos.php', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ nome, desc, status, img: imgSrc })
+    body: formData
   })
   .then(r => r.json())
   .then(() => {

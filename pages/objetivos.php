@@ -29,8 +29,8 @@
 
       <div class="field-group">
         <label>Imagem do Objetivo</label>
-        <input type="file" id="projImgObj" accept="image/*">
-        <img id="imgPreviewObj" src="" alt="Preview da imagem">
+        <input type="file" id="projImgObj" name="imagem_arquivo" accept="image/*">
+        <img id="imgPreviewObj" src="" alt="Preview da imagem" style="display: none;">
       </div>
 
       <button class="add-project-btn" id="btnAddObjetivo">+ Adicionar Objetivo</button>

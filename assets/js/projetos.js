@@ -14,7 +14,7 @@ function carregarProjetos() {
           p.status,
           p.tags,
           p.link,
-          null,
+          p.imagem ? `uploads/${p.imagem}` : null,
           '🗂️',
           p.id,
           'api/projetos.php'
@@ -32,18 +32,29 @@ document.getElementById('btnAddProject').addEventListener('click', () => {
   const tags   = document.getElementById('projTags').value.trim();
   const link   = document.getElementById('projLink').value.trim();
   const status = document.getElementById('projStatus').value;
-  const imgSrc = getImgProjeto();
+  const arquivoImg = document.getElementById('projImg').files[0];
 
   if (!nome) { alert('Informe pelo menos o nome do projeto.'); return; }
 
+  const formData = new FormData();
+  formData.append('nome', nome);
+  formData.append('desc', desc);
+  formData.append('status', status);
+  formData.append('tags', tags);
+  formData.append('link', link);
+
+  if(arquivoImg){
+    formData.append('imagem_arquivo', arquivoImg);
+  }
+
   fetch('api/projetos.php', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ nome, desc, status, tags, link, img: imgSrc })
+    body: formData
   })
   .then(r => r.json())
   .then(() => {
-    carregarProjetos(); // recarrega tudo do banco, não precisa chamar adicionarCard aqui
+    carregarProjetos();
+
 
     ['projNome','projDesc','projTags','projLink'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('projStatus').value = 'ativo';

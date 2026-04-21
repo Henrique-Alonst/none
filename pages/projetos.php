@@ -40,8 +40,8 @@
 
       <div class="field-group">
         <label>Imagem do Projeto</label>
-        <input type="file" id="projImg" accept="image/*">
-        <img id="imgPreview" src="" alt="Preview da imagem">
+        <input type="file" id="projImg" name="imagem_arquivo" accept="image/*">
+        <img id="imgPreview" src="" alt="Preview da imagem" style="display: none;">
       </div>
 
       <button class="add-project-btn" id="btnAddProject">+ Adicionar Projeto</button>

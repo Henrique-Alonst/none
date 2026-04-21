@@ -15,12 +15,28 @@ switch ($method) {
 
     case 'POST':
         // Salva um novo projeto
-        $body   = json_decode(file_get_contents('php://input'), true);
-        $nome   = trim($body['nome']   ?? '');
-        $desc   = trim($body['desc']   ?? '');
-        $status = trim($body['status'] ?? 'ativo');
-        $tags   = trim($body['tags']   ?? '');
-        $link   = trim($body['link']   ?? '');
+        $nome   = trim($_POST['nome']   ?? '');
+        $desc   = trim($_POST['desc']   ?? '');
+        $status = trim($_POST['status'] ?? 'ativo');
+        $tags   = trim($_POST['tags']   ?? '');
+        $link   = trim($_POST['link']   ?? '');
+
+        $nome_imagem = null;
+
+        if (isset($_FILES['imagem_arquivo']) && $_FILES['imagem_arquivo']['error'] === 0) {
+            $extensao = strtolower(pathinfo($_FILES['imagem_arquivo']['name'], PATHINFO_EXTENSION));
+            $novo_nome = uniqid() . "." . $extensao;
+            $diretorio = "../uploads/";
+
+        if (!is_dir($diretorio)) {
+                mkdir($diretorio, 0777, true);
+            }
+
+        if (move_uploaded_file($_FILES['imagem_arquivo']['tmp_name'], $diretorio . $novo_nome)) {
+                $nome_imagem = $novo_nome;
+        }  
+            
+        }
 
         if (empty($nome)) {
             http_response_code(400);
@@ -29,8 +45,8 @@ switch ($method) {
         }
 
         
-        $stmt = $pdo->prepare("INSERT INTO projetos (nome, descricao, status, tags, link) VALUES (?,?,?,?,?)");
-        $stmt->execute([$nome, $desc, $status, $tags, $link]);
+        $stmt = $pdo->prepare("INSERT INTO projetos (nome, descricao, status, tags, link, imagem) VALUES (?,?,?,?,?,?)");
+        $stmt->execute([$nome, $desc, $status, $tags, $link, $nome_imagem]);
         echo json_encode(['id' => $pdo->lastInsertId(), 'nome' => $nome]);
         break;
 
@@ -43,6 +59,13 @@ switch ($method) {
             break;
         }
 
+        $stmtImg = $pdo->prepare("SELECT imagem FROM projetos WHERE id = ?");
+        $stmtImg->execute([$id]);
+        $projeto = $stmtImg->fetch();
+        if ($projeto && $projeto['imagem']) {
+            @unlink("../uploads/" . $projeto['imagem']);
+        }
+
         $stmt = $pdo->prepare("DELETE FROM projetos WHERE id = ?");
         $stmt->execute([$id]);
 
@@ -52,8 +75,8 @@ switch ($method) {
     case 'PATCH':
         $id = intval($_GET['id'] ?? 0);
         $body = json_decode(file_get_contents('php://input'), true);
-        $nome = trim($body['nome'] ?? '');
-        $desc = trim($body['desc'] ?? '');
+        $nome = trim($_POST['nome'] ?? '');
+        $desc = trim($_POST['desc'] ?? '');
 
         if(!$id || empty($nome)){
             http_response_code(400);

@@ -57,7 +57,7 @@ switch ($method) {
             break;
         }
 
-        $stmtImg = $pdo->prepare("SELECT imagem FROM projetos WHERE id = ?");
+        $stmtImg = $pdo->prepare("SELECT imagem FROM objetivos WHERE id = ?");
         $stmtImg->execute([$id]);
         $objetivo = $stmtImg->fetch();
         if ($objetivo && $objetivo['imagem']) {
@@ -73,8 +73,8 @@ switch ($method) {
     case 'PATCH':
         $id = intval($_GET['id'] ?? 0);
         $body = json_decode(file_get_contents('php://input'), true);
-        $nome = trim($_POST['nome'] ?? '');
-        $desc = trim($_POST['desc'] ?? '');
+        $nome = trim($body['nome'] ?? '');
+        $desc = trim($body['desc'] ?? '');
 
         if(!$id || empty($nome)){
             http_response_code(400);

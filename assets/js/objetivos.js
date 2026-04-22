@@ -28,7 +28,7 @@ const getImgObjetivo = initImageUpload('projImg', 'imgPreview');
 
 document.getElementById('btnAddObjetivo').addEventListener('click', () => {
   const nome   = document.getElementById('projNomeObj').value.trim();
-  const desc   = document.getElementById('projDesc').value.trim();
+  const desc   = document.getElementById('projDescObj').value.trim();
   const status = document.getElementById('projStatus').value;
   const arquivoImg = document.getElementById('projImgObj').files[0];
 
@@ -51,7 +51,7 @@ document.getElementById('btnAddObjetivo').addEventListener('click', () => {
   .then(() => {
     carregarobjetivos(); // recarrega tudo do banco, não precisa chamar adicionarCard aqui
 
-    ['projNomeObj','projDesc',].forEach(id => document.getElementById(id).value = '');
+    ['projNomeObj','projDescObj',].forEach(id => document.getElementById(id).value = '');
     document.getElementById('projStatus').value = 'ativo';
     document.getElementById('projImg').value = '';
     document.getElementById('imgPreview').style.display = 'none';

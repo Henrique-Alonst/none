@@ -11,19 +11,33 @@
     <!-- Total geral -->
     <div id="totalGeral" style="
       font-family: 'Special Elite', monospace;
-      font-size: 13px;
+      font-size: 12px;
       letter-spacing: 1px;
       color: var(--ink-faded);
       margin-bottom: 24px;
-      padding: 12px 16px;
+      padding: 16px;
       border: 1.5px dashed var(--ink-light);
       border-radius: 2px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
     ">
-      <span>TOTAL GERAL</span>
-      <span id="totalGeralValor" style="font-size:16px; color: var(--ink); font-family:'Caveat',cursive; font-weight:700;">R$ 0,00</span>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span>TOTAL GASTO</span>
+        <span id="totalGeralValor" style="font-size:18px; color:var(--ink); font-family:'Caveat',cursive; font-weight:700;">R$ 0,00</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span>FALTA PAGAR</span>
+        <span id="totalFaltaValor" style="font-size:18px; color:var(--accent-dark); font-family:'Caveat',cursive; font-weight:700;">R$ 0,00</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span>PASSOU DO ORÇAMENTO</span>
+        <span id="totalPassouValor" style="font-size:18px; color:var(--red-margin); font-family:'Caveat',cursive; font-weight:700;">R$ 0,00</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span>PRECISA PRA FICAR NO VERDE</span>
+        <span id="totalVermelhoValor" style="font-size:18px; color:var(--green); font-family:'Caveat',cursive; font-weight:700;">R$ 0,00</span>
+      </div>
     </div>
 
     <!-- Grade de meses -->

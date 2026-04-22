@@ -8,15 +8,37 @@ function formatBRL(valor) {
 
 // ===== TOTAL GERAL =====
 function calcularTotal() {
-  let total = 0;
+  let totalGasto    = 0;
+  let totalFalta    = 0;
+  let totalPassou   = 0;
+
   document.querySelectorAll('.mes-card').forEach(card => {
+    const orcamento = parseFloat(card.querySelector('.mes-orcamento').value.replace(',', '.')) || 0;
+    let gastoMes    = 0;
+    let faltaMes    = 0;
+
     card.querySelectorAll('.conta-item').forEach(item => {
+      const valor = parseFloat(item.querySelector('.conta-valor').value.replace(',', '.')) || 0;
+      gastoMes += valor;
       if (!item.querySelector('.conta-check').checked) {
-        total += parseFloat(item.querySelector('.conta-valor').value.replace(',', '.')) || 0;
+        faltaMes += valor;
       }
     });
+
+    totalGasto += gastoMes;
+    totalFalta += faltaMes;
+
+    if (orcamento > 0 && gastoMes > orcamento) {
+      totalPassou += gastoMes - orcamento;
+    }
   });
-  document.getElementById('totalGeralValor').textContent = formatBRL(total);
+
+  const totalVermelho = totalPassou > 0 ? totalPassou + 100 : 0;
+
+  document.getElementById('totalGeralValor').textContent    = formatBRL(totalGasto);
+  document.getElementById('totalFaltaValor').textContent    = formatBRL(totalFalta);
+  document.getElementById('totalPassouValor').textContent   = totalPassou > 0 ? formatBRL(totalPassou) : '✓ No azul';
+  document.getElementById('totalVermelhoValor').textContent = totalVermelho > 0 ? formatBRL(totalVermelho) : '✓ Tudo ok';
 }
 
 // ===== ATUALIZA TOTAIS DO CARD =====
@@ -37,7 +59,8 @@ function atualizarMes(card) {
   });
 
   card.querySelector('.mes-total').textContent = `falta: ${formatBRL(totalGasto - totalPago)}`;
-
+  card.querySelector('.mes-total').textContent = `falta: ${formatBRL(totalGasto - totalPago)}`;
+  card.querySelector('.mes-gasto-total').textContent = `total: ${formatBRL(totalGasto)}`; // ← aqui
   const pct = totalGasto > 0 ? Math.round((totalPago / totalGasto) * 100) : 0;
   card.querySelector('.progress-fill').style.width = pct + '%';
   card.querySelector('.progress-label').textContent = `${pct}% pago`;
@@ -161,6 +184,11 @@ function criarMes(mesId, nomeMes, orcamento = 0) {
         outline:none; cursor:text; min-width:60px;
       ">${nomeMes}</div>
       <div style="display:flex; gap:8px; align-items:center;">
+        <span class="mes-gasto-total" style="
+          font-family:'Special Elite',monospace;
+          font-size:11px; color:var(--ink-light); letter-spacing:1px;
+        ">total: R$ 0,00</span>
+        <span style="color:var(--ink-light); opacity:0.4;">|</span>
         <span class="mes-total" style="
           font-family:'Special Elite',monospace;
           font-size:11px; color:var(--ink-light); letter-spacing:1px;

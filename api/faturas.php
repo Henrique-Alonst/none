@@ -15,7 +15,7 @@ switch ($method) {
             break;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM faturas WHERE cartao_id = ? ORDER BY ano ASC, mes ASC");
+        $stmt = $pdo->prepare("SELECT * FROM faturas WHERE cartao_id = ? ORDER BY criado_em ASC");
         $stmt->execute([$cartao_id]);
         echo json_encode($stmt->fetchAll());
         break;

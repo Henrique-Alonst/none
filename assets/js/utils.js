@@ -1,11 +1,5 @@
 // assets/js/utils.js
 
-/**
- * Inicializa o upload e preview de imagem
- * @param {string} inputId  - id do input file
- * @param {string} previewId - id da tag img de preview
- * @returns {Function} getImageSrc - chama pra pegar o src atual da imagem
- */
 function initImageUpload(inputId, previewId) {
   const input   = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
@@ -24,40 +18,15 @@ function initImageUpload(inputId, previewId) {
   return () => preview.style.display !== 'none' ? preview.src : null;
 }
 
-/**
- * Accordion — clica no título pra abrir/fechar o form
- * @param {string} toggleId - id do título clicável
- * @param {string} formId   - id do form a mostrar/esconder
- */
 function initAccordion(toggleId, formId) {
   const toggle = document.getElementById(toggleId);
   const form   = document.getElementById(formId);
-
-  toggle.addEventListener('click', () => {
-    form.classList.toggle('aberto');
-  });
+  toggle.addEventListener('click', () => form.classList.toggle('aberto'));
 }
 
-/**
- * Cria botões de ação (editar/apagar) padronizados
- * @param {Function} onEditar
- * @param {Function} onApagar
- */
-function criarAcoes(onEditar, onApagar) {
+function criarAcoes(onApagar) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'display:flex; gap:6px; margin-top:8px;';
-
-  const btnEdit = document.createElement('button');
-  btnEdit.textContent = '✎ Editar';
-  btnEdit.style.cssText = `
-    font-family:'Special Elite',monospace;
-    font-size:10px; letter-spacing:1px;
-    background:none; border:1px solid var(--ink-light);
-    border-radius:2px; padding:3px 8px;
-    cursor:pointer; color:var(--ink-faded);
-    transition: all 0.15s;
-  `;
-  btnEdit.addEventListener('click', onEditar);
 
   const btnDel = document.createElement('button');
   btnDel.textContent = '✕ Apagar';
@@ -71,24 +40,10 @@ function criarAcoes(onEditar, onApagar) {
   `;
   btnDel.addEventListener('click', onApagar);
 
-  wrap.appendChild(btnEdit);
   wrap.appendChild(btnDel);
   return wrap;
 }
 
-/**
- * Adiciona um card de projeto/objetivo no grid
- * @param {string} gridId       - id do grid onde o card vai entrar
- * @param {string} nome         - nome do projeto/objetivo
- * @param {string} desc         - descrição
- * @param {string} status       - ativo | pausado | concluido
- * @param {string} tags         - tags separadas por vírgula
- * @param {string} link         - link externo
- * @param {string|null} imgSrc  - src da imagem ou null
- * @param {string} placeholder  - emoji placeholder quando não tem imagem
- * @param {number|null} id      - id do banco de dados (null se não tiver backend)
- * @param {string|null} endpoint - endpoint da api (ex: 'api/projetos.php')
- */
 function adicionarCard(gridId, nome, desc, status, tags, link, imgSrc, placeholder, id = null, endpoint = null) {
   const statusLabel = { ativo: 'Ativo', pausado: 'Pausado', concluido: 'Concluído' }[status];
 
@@ -100,27 +55,129 @@ function adicionarCard(gridId, nome, desc, status, tags, link, imgSrc, placehold
     ? `<a class="card-link" href="${link}" target="_blank">↗ VER PROJETO</a>`
     : '';
 
-  const imgEl = imgSrc
-    ? `<img class="card-img" src="${imgSrc}" alt="${nome}">`
-    : `<div class="card-img-placeholder">${placeholder}</div>`;
-
   const card = document.createElement('div');
   card.classList.add('project-card');
 
-  card.innerHTML = `
-    ${imgEl}
-    <div class="card-body">
-      <div class="card-name">${nome}</div>
-      <div class="card-desc">${desc || 'Sem descrição.'}</div>
-      <div class="card-tags">
-        <span class="tag status-${status} tag-status-editavel" style="cursor:pointer;" title="Clique para mudar status">${statusLabel}</span>
-        ${tagHTML}
-      </div>
-      ${linkHTML}
-    </div>`;
+  // Imagem ou placeholder com hover de câmera
+  const imgWrap = document.createElement('div');
+  imgWrap.style.cssText = 'position:relative; cursor:pointer;';
 
-  // Ciclo de status ao clicar na tag
-  const tagStatus = card.querySelector('.tag-status-editavel');
+  if (imgSrc) {
+    imgWrap.innerHTML = `
+      <img class="card-img" src="${imgSrc}" alt="${nome}" style="display:block;">
+      <div class="img-hover-cam" style="
+        position:absolute; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.35); display:flex; align-items:center;
+        justify-content:center; opacity:0; transition:opacity 0.2s;
+        border-radius:0;
+      ">📷</div>
+    `;
+  } else {
+    imgWrap.innerHTML = `
+      <div class="card-img-placeholder" style="position:relative;">${placeholder}
+        <div class="img-hover-cam" style="
+          position:absolute; top:0; left:0; width:100%; height:100%;
+          background:rgba(0,0,0,0.15); display:flex; align-items:center;
+          justify-content:center; opacity:0; transition:opacity 0.2s;
+          font-size:1.2rem;
+        ">📷</div>
+      </div>
+    `;
+  }
+
+  imgWrap.addEventListener('mouseenter', () => {
+    imgWrap.querySelector('.img-hover-cam').style.opacity = '1';
+  });
+  imgWrap.addEventListener('mouseleave', () => {
+    imgWrap.querySelector('.img-hover-cam').style.opacity = '0';
+  });
+
+  // Clique na imagem abre seletor de arquivo
+  const inputImg = document.createElement('input');
+  inputImg.type   = 'file';
+  inputImg.accept = 'image/*';
+  inputImg.style.display = 'none';
+
+  inputImg.addEventListener('change', () => {
+    const arquivo = inputImg.files[0];
+    if (!arquivo || !id || !endpoint) return;
+
+    const formData = new FormData();
+    formData.append('_method', 'PATCH');
+    formData.append('nome', card.querySelector('.card-name').textContent.trim());
+    formData.append('desc', card.querySelector('.card-desc').textContent.trim());
+    formData.append('imagem_arquivo', arquivo);
+
+    fetch(`${endpoint}?id=${id}`, { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(() => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const imgExistente = imgWrap.querySelector('.card-img');
+          if (imgExistente) {
+            imgExistente.src = e.target.result;
+          } else {
+            imgWrap.querySelector('.card-img-placeholder').style.backgroundImage = `url(${e.target.result})`;
+            imgWrap.innerHTML = `
+              <img class="card-img" src="${e.target.result}" alt="${nome}" style="display:block;">
+              <div class="img-hover-cam" style="
+                position:absolute; top:0; left:0; width:100%; height:100%;
+                background:rgba(0,0,0,0.35); display:flex; align-items:center;
+                justify-content:center; opacity:0; transition:opacity 0.2s;
+              ">📷</div>
+            `;
+            imgWrap.addEventListener('mouseenter', () => imgWrap.querySelector('.img-hover-cam').style.opacity = '1');
+            imgWrap.addEventListener('mouseleave', () => imgWrap.querySelector('.img-hover-cam').style.opacity = '0');
+          }
+        };
+        reader.readAsDataURL(arquivo);
+      });
+  });
+
+  imgWrap.addEventListener('click', () => inputImg.click());
+  imgWrap.appendChild(inputImg);
+
+  card.appendChild(imgWrap);
+
+  // Body do card
+  const body = document.createElement('div');
+  body.classList.add('card-body');
+  body.innerHTML = `
+    <div class="card-name" contenteditable="true" style="outline:none; cursor:text;">${nome}</div>
+    <div class="card-desc" contenteditable="true" style="outline:none; cursor:text; font-size:12px; color:var(--ink-faded); line-height:1.6;">${desc || 'Sem descrição.'}</div>
+    <div class="card-tags">
+      <span class="tag status-${status} tag-status-editavel" style="cursor:pointer;" title="Clique para mudar status">${statusLabel}</span>
+      ${tagHTML}
+    </div>
+    ${linkHTML}
+  `;
+
+  // Salvar nome ao sair
+  body.querySelector('.card-name').addEventListener('blur', () => {
+    const novoNome = body.querySelector('.card-name').textContent.trim();
+    if (id && endpoint && novoNome) {
+      const formData = new FormData();
+      formData.append('_method', 'PATCH');
+      formData.append('nome', novoNome);
+      formData.append('desc', body.querySelector('.card-desc').textContent.trim());
+      fetch(`${endpoint}?id=${id}`, { method: 'POST', body: formData });
+    }
+  });
+
+  // Salvar desc ao sair
+  body.querySelector('.card-desc').addEventListener('blur', () => {
+    const novaDesc = body.querySelector('.card-desc').textContent.trim();
+    if (id && endpoint) {
+      const formData = new FormData();
+      formData.append('_method', 'PATCH');
+      formData.append('nome', body.querySelector('.card-name').textContent.trim());
+      formData.append('desc', novaDesc);
+      fetch(`${endpoint}?id=${id}`, { method: 'POST', body: formData });
+    }
+  });
+
+  // Ciclo de status
+  const tagStatus = body.querySelector('.tag-status-editavel');
   const statusCiclo = ['ativo', 'pausado', 'concluido'];
   const labelCiclo  = ['Ativo', 'Pausado', 'Concluído'];
   let statusAtual = statusCiclo.indexOf(status);
@@ -129,50 +186,24 @@ function adicionarCard(gridId, nome, desc, status, tags, link, imgSrc, placehold
     statusAtual = (statusAtual + 1) % 3;
     tagStatus.className = `tag status-${statusCiclo[statusAtual]} tag-status-editavel`;
     tagStatus.style.cursor = 'pointer';
-    tagStatus.title = 'Clique para mudar status';
     tagStatus.textContent = labelCiclo[statusAtual];
   });
 
-  // Botões editar / apagar
+  // Só botão apagar agora
   const acoes = criarAcoes(
-    // Editar
-    () => {
-      const novoNome = prompt('Nome:', card.querySelector('.card-name').textContent);
-      if (novoNome !== null && novoNome.trim()) {
-        const novaDesc = prompt('Descrição:', card.querySelector('.card-desc').textContent);
-        if (id && endpoint) {
-          // Com backend — salva no banco
-          fetch(`${endpoint}?id=${id}`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nome: novoNome.trim(), desc: novaDesc?.trim() || '' })
-          })
-          .then(() => {
-            card.querySelector('.card-name').textContent = novoNome.trim();
-            card.querySelector('.card-desc').textContent = novaDesc?.trim() || 'Sem descrição.';
-          });
-        } else {
-          // Sem backend — só atualiza na tela
-          card.querySelector('.card-name').textContent = novoNome.trim();
-          card.querySelector('.card-desc').textContent = novaDesc?.trim() || 'Sem descrição.';
-        }
-      }
-    },
-    // Apagar
     () => {
       if (confirm('Apagar este item?')) {
         if (id && endpoint) {
-          // Com backend — remove do banco
           fetch(`${endpoint}?id=${id}`, { method: 'DELETE' })
             .then(() => card.remove());
         } else {
-          // Sem backend — só remove da tela
           card.remove();
         }
       }
     }
   );
 
-  card.querySelector('.card-body').appendChild(acoes);
+  body.appendChild(acoes);
+  card.appendChild(body);
   document.getElementById(gridId).prepend(card);
 }

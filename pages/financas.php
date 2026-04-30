@@ -81,5 +81,6 @@
       line-height: 1.7;
       padding: 4px;
     "></textarea>
+     <button class="save-btn" id="btnSalvar">Salvar nota</button>
   </div>
 </div>

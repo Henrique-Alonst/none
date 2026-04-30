@@ -55,7 +55,11 @@ document.getElementById('btnObjetivos').addEventListener('click', () => showView
 document.getElementById('btnFinanca').addEventListener('click', () => showView('financas'));
 document.getElementById('btnCartao').addEventListener('click', () => showView('cartao'))
 document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => showView('home')));
-document.querySelectorAll('[data-back-financas]').forEach(btn => btn.addEventListener('click', () => showView('financas')));
+document.querySelectorAll('[data-back-financas]').forEach(btn => 
+  btn.addEventListener('click', () => {showView('financas'); 
+    carregarFinancas(); //
+  })
+);
 
 // ===== METAS =====
 const newGoalInput = document.getElementById('newGoalInput');

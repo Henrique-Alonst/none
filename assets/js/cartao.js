@@ -1,7 +1,10 @@
 // assets/js/cartao.js
 
 function formatBRLCartao(valor) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return valor.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
 }
 
 // ===== TOTAL GERAL =====
@@ -19,11 +22,11 @@ function calcularTotalCartao() {
 
 // ===== ATUALIZA CARD DO CARTÃO =====
 function atualizarCartao(card) {
-  const itens  = card.querySelectorAll('.gasto-item');
+  const itens = card.querySelectorAll('.gasto-item');
   const limite = parseFloat(card.querySelector('.cartao-limite').value.replace(',', '.')) || 0;
   let totalGasto = 0;
-  let totalPago  = 0;
-  let countPago  = 0;
+  let totalPago = 0;
+  let countPago = 0;
 
   itens.forEach(item => {
     const valor = parseFloat(item.querySelector('.gasto-valor').value.replace(',', '.')) || 0;
@@ -38,15 +41,15 @@ function atualizarCartao(card) {
   card.querySelector('.cartao-falta').textContent = `falta: ${formatBRLCartao(totalGasto - totalPago)}`;
 
   const pct = totalGasto > 0 ? Math.round((totalPago / totalGasto) * 100) : 0;
-  card.querySelector('.progress-fill').style.width  = pct + '%';
+  card.querySelector('.progress-fill').style.width = pct + '%';
   card.querySelector('.progress-label').textContent = `${pct}% pago`;
 
   const limLabel = card.querySelector('.limite-status');
   if (limite > 0) {
     const disponivel = limite - (totalGasto - totalPago);
-    limLabel.textContent = disponivel < 0
-      ? `⚠ passou ${formatBRLCartao(Math.abs(disponivel))} do limite`
-      : `✓ disponível: ${formatBRLCartao(disponivel)}`;
+    limLabel.textContent = disponivel < 0 ?
+      `⚠ passou ${formatBRLCartao(Math.abs(disponivel))} do limite` :
+      `✓ disponível: ${formatBRLCartao(disponivel)}`;
     limLabel.style.color = disponivel < 0 ? 'var(--red-margin)' : 'var(--green)';
   } else {
     limLabel.textContent = '';
@@ -54,7 +57,7 @@ function atualizarCartao(card) {
 
   const tudoPago = itens.length > 0 && countPago === itens.length;
   card.style.borderColor = tudoPago ? 'var(--green)' : 'var(--ink-light)';
-  card.style.boxShadow   = tudoPago ? '3px 3px 0 var(--green)' : '3px 3px 0 var(--ink-light)';
+  card.style.boxShadow = tudoPago ? '3px 3px 0 var(--green)' : '3px 3px 0 var(--ink-light)';
 
   calcularTotalCartao();
 }
@@ -62,7 +65,7 @@ function atualizarCartao(card) {
 // ===== ADICIONAR GASTO =====
 function adicionarGasto(faturaCard, faturaId, pessoa, valor, pago, gastoId) {
   const lista = faturaCard.querySelector('.gastos-lista');
-  const item  = document.createElement('div');
+  const item = document.createElement('div');
   item.classList.add('gasto-item');
   item.style.cssText = 'display:flex; align-items:center; gap:8px;';
 
@@ -95,20 +98,24 @@ function adicionarGasto(faturaCard, faturaId, pessoa, valor, pago, gastoId) {
     ">✕</button>
   `;
 
-  const check    = item.querySelector('.gasto-check');
+  const check = item.querySelector('.gasto-check');
   const pessoaEl = item.querySelector('.gasto-pessoa');
   const cartaoCard = faturaCard.closest('.cartao-card');
 
   check.addEventListener('change', () => {
     pessoaEl.style.textDecoration = check.checked ? 'line-through' : 'none';
-    pessoaEl.style.opacity        = check.checked ? '0.45' : '1';
-    check.style.background        = check.checked ? 'var(--green)' : 'transparent';
-    check.style.borderColor       = check.checked ? 'var(--green)' : 'var(--ink-light)';
+    pessoaEl.style.opacity = check.checked ? '0.45' : '1';
+    check.style.background = check.checked ? 'var(--green)' : 'transparent';
+    check.style.borderColor = check.checked ? 'var(--green)' : 'var(--ink-light)';
 
     fetch(`api/gastos.php?id=${gastoId}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ pago: check.checked ? 1 : 0 })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        pago: check.checked ? 1 : 0
+      })
     });
 
     atualizarCartao(cartaoCard);
@@ -118,15 +125,24 @@ function adicionarGasto(faturaCard, faturaId, pessoa, valor, pago, gastoId) {
     const novoValor = parseFloat(item.querySelector('.gasto-valor').value) || 0;
     fetch(`api/gastos.php?id=${gastoId}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ valor: novoValor })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        valor: novoValor
+      })
     });
     atualizarCartao(cartaoCard);
   });
 
   item.querySelector('.btn-rem-gasto').addEventListener('click', () => {
-    fetch(`api/gastos.php?id=${gastoId}`, { method: 'DELETE' })
-      .then(() => { item.remove(); atualizarCartao(cartaoCard); });
+    fetch(`api/gastos.php?id=${gastoId}`, {
+        method: 'DELETE'
+      })
+      .then(() => {
+        item.remove();
+        atualizarCartao(cartaoCard);
+      });
   });
 
   lista.appendChild(item);
@@ -134,9 +150,9 @@ function adicionarGasto(faturaCard, faturaId, pessoa, valor, pago, gastoId) {
 }
 
 // ===== CRIAR FATURA =====
-function criarFatura(cartaoCard, cartaoId, faturaId, mes, ano, nome = null) {
+function criarFatura(cartaoCard, cartaoId, faturaId, mes, ano, nome = null, minimizado = 0) {
   const container = cartaoCard.querySelector('.faturas-container');
-  const faturaEl  = document.createElement('div');
+  const faturaEl = document.createElement('div');
   faturaEl.classList.add('fatura-item');
   faturaEl.dataset.id = faturaId;
   faturaEl.style.cssText = `
@@ -151,16 +167,23 @@ function criarFatura(cartaoCard, cartaoId, faturaId, mes, ano, nome = null) {
   const tituloExibido = nome;
 
   faturaEl.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <span contenteditable="true" class="fatura-titulo" style="
-        font-family:'Caveat',cursive; font-size:1.1rem; font-weight:700; color:var(--ink);
-        outline:none; cursor:text; min-width:60px;
-      ">${tituloExibido}</span>
+  <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" class="fatura-header">
+    <span contenteditable="true" class="fatura-titulo" style="
+      font-family:'Caveat',cursive; font-size:1.1rem; font-weight:700; color:var(--ink);
+      outline:none; cursor:text; min-width:60px;
+    ">${tituloExibido}</span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="fatura-toggle" style="
+        font-family:'Special Elite',monospace; font-size:10px;
+        color:var(--ink-light); letter-spacing:1px; cursor:pointer;
+      ">▼</span>
       <button class="btn-rem-fatura" style="
         background:none; border:none; cursor:pointer;
         color:var(--ink-light); font-size:12px; opacity:0.5;
       ">✕</button>
     </div>
+  </div>
+  <div class="fatura-corpo" style="display:flex; flex-direction:column; gap:6px;">
     <div class="gastos-lista" style="display:flex; flex-direction:column; gap:6px;"></div>
     <div style="display:flex; gap:6px; margin-top:4px;">
       <input type="text" placeholder="Pessoa" class="nova-pessoa-nome" style="
@@ -178,41 +201,87 @@ function criarFatura(cartaoCard, cartaoId, faturaId, mes, ano, nome = null) {
         background:none; border:none; color:var(--green); cursor:pointer;
       ">＋</button>
     </div>
-  `;
+  </div>
+`;
+
+  // Toggle minimizar/expandir
+  // Toggle minimizar/expandir
+  const faturaHeader = faturaEl.querySelector('.fatura-header');
+  const faturaCorpo = faturaEl.querySelector('.fatura-corpo');
+  const faturaToggle = faturaEl.querySelector('.fatura-toggle');
+
+  // Carrega estado salvo do banco
+  let aberto = minimizado ? false : true;
+  faturaCorpo.style.display = aberto ? 'flex' : 'none';
+  faturaToggle.textContent = aberto ? '▼' : '▶';
+
+  faturaHeader.addEventListener('click', e => {
+    if (e.target.classList.contains('fatura-titulo') || e.target.classList.contains('btn-rem-fatura')) return;
+
+    aberto = !aberto;
+    faturaCorpo.style.display = aberto ? 'flex' : 'none';
+    faturaToggle.textContent = aberto ? '▼' : '▶';
+
+    // Salva no banco
+    fetch(`api/faturas.php?id=${faturaId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        minimizado: aberto ? 0 : 1
+      })
+    });
+  });
 
   // Salvar nome da fatura ao sair
   faturaEl.querySelector('.fatura-titulo').addEventListener('blur', () => {
     const novoNome = faturaEl.querySelector('.fatura-titulo').textContent.trim();
     fetch(`api/faturas.php?id=${faturaId}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ nome: novoNome })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nome: novoNome
+      })
     });
   });
 
   // Remover fatura
   faturaEl.querySelector('.btn-rem-fatura').addEventListener('click', () => {
-    fetch(`api/faturas.php?id=${faturaId}`, { method: 'DELETE' })
-      .then(() => { faturaEl.remove(); atualizarCartao(cartaoCard); });
+    fetch(`api/faturas.php?id=${faturaId}`, {
+        method: 'DELETE'
+      })
+      .then(() => {
+        faturaEl.remove();
+        atualizarCartao(cartaoCard);
+      });
   });
 
   // Adicionar gasto
   faturaEl.querySelector('.btn-add-gasto').addEventListener('click', () => {
     const pessoa = faturaEl.querySelector('.nova-pessoa-nome').value.trim();
-    const valor  = parseFloat(faturaEl.querySelector('.nova-pessoa-valor').value) || 0;
+    const valor = parseFloat(faturaEl.querySelector('.nova-pessoa-valor').value) || 0;
     if (!pessoa) return;
 
     fetch('api/gastos.php', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ fatura_id: faturaId, pessoa, valor })
-    })
-    .then(r => r.json())
-    .then(data => {
-      adicionarGasto(faturaEl, faturaId, data.pessoa, data.valor, 0, data.id);
-      faturaEl.querySelector('.nova-pessoa-nome').value  = '';
-      faturaEl.querySelector('.nova-pessoa-valor').value = '';
-    });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fatura_id: faturaId,
+          pessoa,
+          valor
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        adicionarGasto(faturaEl, faturaId, data.pessoa, data.valor, 0, data.id);
+        faturaEl.querySelector('.nova-pessoa-nome').value = '';
+        faturaEl.querySelector('.nova-pessoa-valor').value = '';
+      });
   });
 
   faturaEl.querySelector('.nova-pessoa-nome').addEventListener('keydown', e => {
@@ -239,6 +308,7 @@ function criarCartao(cartaoId, nomeCartao, limite = 0) {
     gap: 10px;
     transition: border-color 0.3s, box-shadow 0.3s;
   `;
+
 
   card.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -284,27 +354,44 @@ function criarCartao(cartaoId, nomeCartao, limite = 0) {
   `;
 
   card.querySelector('.btn-rem-cartao').addEventListener('click', () => {
-    fetch(`api/cartoes.php?id=${cartaoId}`, { method: 'DELETE' })
-      .then(() => { card.remove(); calcularTotalCartao(); });
+    fetch(`api/cartoes.php?id=${cartaoId}`, {
+        method: 'DELETE'
+      })
+      .then(() => {
+        card.remove();
+        calcularTotalCartao();
+      });
   });
 
   card.querySelector('.cartao-limite').addEventListener('change', () => {
     const lim = parseFloat(card.querySelector('.cartao-limite').value) || 0;
     fetch(`api/cartoes.php?id=${cartaoId}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ nome: card.querySelector('.cartao-titulo').textContent.trim(), limite: lim })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nome: card.querySelector('.cartao-titulo').textContent.trim(),
+        limite: lim
+      })
     });
     atualizarCartao(card);
   });
 
+
+
   card.querySelector('.cartao-titulo').addEventListener('blur', () => {
     const nome = card.querySelector('.cartao-titulo').textContent.trim();
-    const lim  = parseFloat(card.querySelector('.cartao-limite').value) || 0;
+    const lim = parseFloat(card.querySelector('.cartao-limite').value) || 0;
     fetch(`api/cartoes.php?id=${cartaoId}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ nome, limite: lim })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nome,
+        limite: lim
+      })
     });
   });
 
@@ -313,12 +400,18 @@ function criarCartao(cartaoId, nomeCartao, limite = 0) {
     const ano = new Date().getFullYear();
 
     fetch('api/faturas.php', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ cartao_id: cartaoId, mes, ano })
-    })
-    .then(r => r.json())
-    .then(data => criarFatura(card, cartaoId, data.id, data.mes, data.ano));
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cartao_id: cartaoId,
+          mes,
+          ano
+        })
+      })
+      .then(r => r.json())
+      .then(data => criarFatura(card, cartaoId, data.id, data.mes, data.ano));
   });
 
   document.getElementById('cartaoGrid').appendChild(card);
@@ -339,7 +432,7 @@ function carregarCartoes() {
           .then(r => r.json())
           .then(faturas => {
             faturas.forEach(f => {
-              const faturaEl = criarFatura(card, c.id, f.id, f.mes, f.ano, f.nome);
+              const faturaEl = criarFatura(card, c.id, f.id, f.mes, f.ano, f.nome, f.minimizado);
 
               fetch(`api/gastos.php?fatura_id=${f.id}`)
                 .then(r => r.json())
@@ -355,12 +448,16 @@ function carregarCartoes() {
 // ===== BOTÃO NOVO CARTÃO =====
 document.getElementById('btnAddCartao').addEventListener('click', () => {
   fetch('api/cartoes.php', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ nome: 'Novo Cartão' })
-  })
-  .then(r => r.json())
-  .then(data => criarCartao(data.id, data.nome));
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nome: 'Novo Cartão'
+      })
+    })
+    .then(r => r.json())
+    .then(data => criarCartao(data.id, data.nome));
 });
 
 // ===== CARREGAR AO ENTRAR =====

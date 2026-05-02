@@ -52,20 +52,27 @@ switch ($method) {
         break;
 
     case 'PATCH':
-         $id   = intval($_GET['id'] ?? 0);
+        $id   = intval($_GET['id'] ?? 0);
         $body = json_decode(file_get_contents('php://input'), true);
         $nome = trim($body['nome'] ?? '');
+        $minimizado = isset($body['minimizado']) ? intval($body['minimizado']) : null;
 
         if (!$id) {
-        http_response_code(400);
-        echo json_encode(['erro' => 'ID inválido.']);
-        break;
-    }
+            http_response_code(400);
+            echo json_encode(['erro' => 'ID inválido.']);
+            break;
+        }
 
-        $stmt = $pdo->prepare("UPDATE faturas SET nome = ? WHERE id = ?");
-        $stmt->execute([$nome, $id]);
+        if ($minimizado !== null) {
+            $stmt = $pdo->prepare("UPDATE faturas SET minimizado = ? WHERE id = ?");
+            $stmt->execute([$minimizado, $id]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE faturas SET nome = ? WHERE id = ?");
+            $stmt->execute([$nome, $id]);
+        }
+
         echo json_encode(['mensagem' => 'Fatura atualizada.']);
-        break; 
+        break;
 
     default:
         http_response_code(405);

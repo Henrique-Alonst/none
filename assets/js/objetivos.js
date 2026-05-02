@@ -24,15 +24,15 @@ function carregarobjetivos() {
 }
 
 initAccordion('toggleObjetivos', 'formObjetivos');
-const getImgObjetivo = initImageUpload('projImg', 'imgPreview');
+const getImgObjetivo = initImageUpload('projImgObj', 'imgPreviewObj');
 
 document.getElementById('btnAddObjetivo').addEventListener('click', () => {
   const nome   = document.getElementById('projNomeObj').value.trim();
   const desc   = document.getElementById('projDescObj').value.trim();
-  const status = document.getElementById('projStatus').value;
+  const status = document.getElementById('projStatusObj').value;
   const arquivoImg = document.getElementById('projImgObj').files[0];
 
-  if (!nome) { alert('Informe pelo menos o nome do projeto.'); return; }
+  if (!nome) { alert('Informe pelo menos o nome do objetivo.'); return; }
 
   const formData = new FormData();
   formData.append('nome', nome);
@@ -52,10 +52,10 @@ document.getElementById('btnAddObjetivo').addEventListener('click', () => {
     carregarobjetivos(); // recarrega tudo do banco, não precisa chamar adicionarCard aqui
 
     ['projNomeObj','projDescObj',].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('projStatus').value = 'ativo';
-    document.getElementById('projImg').value = '';
-    document.getElementById('imgPreview').style.display = 'none';
-    document.getElementById('imgPreview').src = '';
+    document.getElementById('projStatusObj').value = 'ativo';
+    document.getElementById('projImgObj').value = '';
+    document.getElementById('imgPreviewObj').style.display = 'none';
+    document.getElementById('imgPreviewObj').src = '';
   });
 });
 

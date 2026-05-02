@@ -70,8 +70,8 @@ switch ($method) {
         }
 
         // Ao inserir novo, ele fica com ordem 0 por padrão (ou você pode pegar o MAX(ordem) + 1)
-        $stmt = $pdo->prepare("INSERT INTO objetivos (nome, descricao, status, tags, link, imagem, ordem) VALUES (?,?,?,?,?,?, 0)");
-        $stmt->execute([$nome, $desc, $status, $tags, $link, $nome_imagem]);
+        $stmt = $pdo->prepare("INSERT INTO objetivos (nome, descricao, status, imagem, ordem) VALUES (?,?,?,?,?)");
+        $stmt->execute([$nome, $desc, $status, $nome_imagem, 0]);
         echo json_encode(['id' => $pdo->lastInsertId(), 'nome' => $nome]);
         break;
 
@@ -120,8 +120,8 @@ switch ($method) {
         }
         $stmtImg = $pdo->prepare("SELECT imagem FROM objetivos WHERE id = ?");
         $stmtImg->execute([$id]);
-        $projeto = $stmtImg->fetch();
-        if ($projeto && $projeto['imagem']) @unlink('../uploads/' . $projeto['projeto']);
+        $objetivo = $stmtImg->fetch();
+        if ($objetivo && $objetivo['imagem']) @unlink('../uploads/' . $objetivo['imagem']);
 
         $stmt = $pdo->prepare("DELETE FROM objetivos WHERE id = ?");
         $stmt->execute([$id]);
